@@ -10,6 +10,11 @@ class UsersModel{
         const [rows]=await db.query("SELECT * FROM account where email=? and password=?  ",[email,pass]);
         return rows[0];
     }
+    static async getUserByID(customer_id){
+        const [rows]=await db.query("SELECT email FROM account where customer_id=?",[customer_id]);
+        return rows[0];
+        
+    }
 
     static async SignUser(email,password){
         // tao user rong trong customer
@@ -81,18 +86,7 @@ class UsersModel{
     // dang ky lich kham
     static async Visit_form(appointment_date, customer_id, employee_id, hours) {
         try {
-            const [appointment] = await db.query(
-                "INSERT INTO appointment (appointment_date, hours) VALUES (?, ?)",
-                [appointment_date, hours]
-            );
-    
-            const appointment_id = appointment.insertId;
-    
-            await db.query(
-                "INSERT INTO registration_form (appointment_date, hours, customer_id, appointment_id) VALUES (?, ?, ?, ?)",
-                [appointment_date, hours, customer_id, appointment_id]
-            );
-    
+            // kiem tra xem co trung ngay kham gio kham cua 1 nhan vien hay khong ?
             const [existingAppointments] = await db.query(
                 `SELECT a.appointment_date, a.hours, ae.employee_id 
                  FROM appointment AS a 
@@ -100,10 +94,21 @@ class UsersModel{
                  WHERE a.appointment_date = ? AND a.hours = ? AND ae.employee_id = ?`,
                 [appointment_date, hours, employee_id]
             );
-    
-            if (existingAppointments.length > 0) {
+            // trung thi khong nhap
+            if(existingAppointments.length > 0){
                 return { status: 400, message: "Employee already has an appointment at this time!" };
             }
+          
+            //  khong trung thi xu ly 
+            const [appointment] = await db.query(
+                "INSERT INTO appointment (appointment_date, hours) VALUES (?, ?)",
+                [appointment_date, hours]
+            );
+            var appointment_id = appointment.insertId;
+            await db.query(
+                "INSERT INTO registration_form (appointment_date, hours, customer_id, appointment_id) VALUES (?, ?, ?, ?)",
+                [appointment_date, hours, customer_id, appointment_id]
+            );
     
             await db.query(
                 "INSERT INTO appointment_staff (appointment_id, employee_id) VALUES (?, ?)",

@@ -80,21 +80,50 @@ class AdminModel{
 
     //////////////////////////////////////// 
     // Quyen Cua Nhan Vien
-    static async Form_visit(date,notes,customer_id,pet_id,employee_id,){
+    static async Form_visit(date,notes,customer_id,pet_id,employee_id,services){
+        try{
 
+            const [customer_check] = await db.query("select c.id as customer_id ,p.id as pet_id from account ac join customer c on ac.customer_id =c.id join pet p on c.id =p.customer_id WHERE c.id=? and p.id=?",
+                [customer_id,pet_id]);
+            
+            if(customer_check.length === 0) return {status:404 ,message:"Not found Customer !"}
+
+            const [visit] = await db.query("insert into visit (date,notes,customer_id,pet_id,employee_id) values(?,?,?,?,?)",
+                [date,notes,customer_id,pet_id,employee_id]
+            );
+            const visit_id = visit.insertId;
+            console.log(visit_id);
+            
+            
+            const add_Service=services.map(async (service)=>{
+                await db.query("insert into visit_service (visit_id,service_id) values(?,?) ",[visit_id,service])
+            })
+            await Promise.all(add_Service);
+
+
+            return {status : 200 , message : "Successful update Visit ! "};
+            
+        }catch(e){
+            return {status:500,message:"error " + e};
+        }
+ 
+ 
     }
-   
-
-
+    static async Update_visit_status(status,appointment_id){
+        try{
+  
+                await db.query("update appointment set status=? where id=? ",[status,appointment_id])
+                return {status:200,message:"Update Status Success !"}
+        
+            
+        }catch(E){
+            return {
+                status:500,
+                message:"error "+ E
+            }
+        }
+        
+    }
 }   
 
 module.exports=AdminModel;
-
-// {
-//     "date":'2025-03-21',
-//     "notes":'done',
-//     "customer_id":2,
-//     "pet_id":3,
-//     "employee_id":2,
-//     "services":["cham soc","tam","chua benh"]
-// }

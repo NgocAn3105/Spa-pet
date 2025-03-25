@@ -1,7 +1,7 @@
 const express=require('express');
 const router=express.Router();
 
-const Admincontrolers=require('../app/controllers/AdminControllers');
+const Admincontrolers=require('../app/Controllers/AdminControllers');
 
 
 

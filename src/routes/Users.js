@@ -1,7 +1,7 @@
 const express = require("express");
 const router =express.Router();
 
-const UsersControllers=require('../app/controllers/UsersControllers')
+const UsersControllers=require('../app/Controllers/UsersControllers')
 
 //dat hen 
 router.post('/register_form',UsersControllers.Visit_form);

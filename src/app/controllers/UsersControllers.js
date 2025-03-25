@@ -1,5 +1,6 @@
 const { response } = require('express');
-const usersModel=require('../models/Usersmodels');
+const usersModel=require('../model/Usersmodels');
+const sendMail=require("../modifie/Mail");
 class UsersControllers{
     index(req,res){
         res.json('test')
@@ -147,19 +148,29 @@ async Visit_form(req, res) {
                 return res.status(400).json({ message: "Hours is required for today's appointment!" });
             }
 
-            const currentHour = new Date().getHours(); // Lấy giờ hiện tại
-            const inputHour = parseInt(hours, 10); // Chuyển `hours` về số nguyên
+            const currentHour = new Date().getHours();
+            const inputHour = parseInt(hours, 10); 
 
             if (inputHour < currentHour) {
                 return res.status(400).json({ message: "Hours must be greater than or equal to the current hour!" });
             }
         }
 
-        // Nếu hợp lệ, gọi hàm `Visit_form` từ `usersModel`
+     
         const visit = await usersModel.Visit_form(appointment_date, customer_id, employee_id, hours);
+        if (visit.status != 200) {
+            return res.json({ response:visit  });
+        }
 
-        // Trả về kết quả
-        return res.json({ response: visit });
+        const user = await usersModel.getUserByID(customer_id);
+        try {
+            await sendMail.sendMail(user.email);
+            return res.json({ status: 200, message: "email sent!", visit });
+        } catch (emailError) {
+            console.error("Error sending email:", emailError);
+            return res.json({ status: 500, message: "Appointment created, but failed to send email!" });
+        }
+
 
     } catch (error) {
         return res.status(500).json({ message: "Server Error: " + error.message });

@@ -1,5 +1,5 @@
 const e = require('express');
-const AdminModel = require('../models/Adminmodels'); // Kiểm tra lại đường dẫn file model
+const AdminModel = require('../model/Adminmodels'); // Kiểm tra lại đường dẫn file model
 
 class AdminControllers {
     async add_service(req, res) {
@@ -33,6 +33,12 @@ class AdminControllers {
                     'status': 404,
                     "message": "missing infomation !"
                 });
+            if(account_employee_id.lenght != 7 || password.lenght !=4){
+                return res.json({
+                    'status': 404,
+                    "message": "Wrong parttern sign employee !"
+                });
+            }
             const employee = await AdminModel.SignEmployee(account_employee_id, password);
             return res.json({
                 "message": employee
@@ -63,7 +69,7 @@ class AdminControllers {
     }
 
 
-    async Delete_employee(account_employee_id) {
+    async Delete_employee(req,res) {
         try {
             const { account_employee_id } = req.body;
             if (!account_employee_id || account_employee_id.lenght != 4) {
