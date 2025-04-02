@@ -1,6 +1,6 @@
 const e = require('express');
 const db=require('./database')
-
+const bcrypt = require("bcryptjs")
 class UsersModel{
     static async GetInfoUser(email){
         const [rows] = await db.query("SELECT * FROM customer as c join account as ac on c.id=ac.customer_id where ac.email=?",[email]);
@@ -18,8 +18,6 @@ class UsersModel{
 
     static async SignUser(email,password){
         // tao user rong trong customer
-
-
         const [rows] = await db.query("SELECT email FROM account WHERE email=?", [email]);
     
         if (rows.length == 0) {
@@ -27,8 +25,8 @@ class UsersModel{
                 "insert into customer (first_name, last_name, address, phone) values (null,null,null,null)"
               );
             const customer_id=result.insertId;
-
-            await db.query("insert into account (customer_id,email,password) values(?,?,?) ",[customer_id,email,password]);
+              const pass=await bcrypt.hash(password,10);
+            await db.query("insert into account (customer_id,email,password) values(?,?,?) ",[customer_id,email,pass]);
             return { status: 200, message: "User add successfully!" };
             
 
@@ -62,9 +60,10 @@ class UsersModel{
         if (rows.length === 0) {
             return { status: 400, message: "Email not found!" };
         }
+        const pass=await bcrypt.hash(password,10);
         await db.query(
             "UPDATE account SET password=? WHERE customer_id=?",
-            [password,rows[0].customer_id]
+            [pass,rows[0].customer_id]
         );
     
         return { status: 200, message: "password updated successfully!" };

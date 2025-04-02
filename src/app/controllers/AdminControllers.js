@@ -33,7 +33,7 @@ class AdminControllers {
                     'status': 404,
                     "message": "missing infomation !"
                 });
-            if(account_employee_id.lenght != 7 || password.lenght !=4){
+            if (account_employee_id.lenght != 7 || password.lenght != 4) {
                 return res.json({
                     'status': 404,
                     "message": "Wrong parttern sign employee !"
@@ -41,7 +41,7 @@ class AdminControllers {
             }
             const employee = await AdminModel.SignEmployee(account_employee_id, password);
             return res.json({
-                "message": employee
+                "response": employee
             })
         } catch (e) {
             return res.json({
@@ -69,7 +69,7 @@ class AdminControllers {
     }
 
 
-    async Delete_employee(req,res) {
+    async Delete_employee(req, res) {
         try {
             const { account_employee_id } = req.body;
             if (!account_employee_id || account_employee_id.lenght != 4) {
@@ -79,7 +79,7 @@ class AdminControllers {
             }
             const employee = AdminModel.RemoveEmployee(account_employee_id);
             return res.json({
-                "respone": employee
+                "response": employee
             })
 
         } catch (e) {
