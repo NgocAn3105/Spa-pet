@@ -19,7 +19,7 @@ router.post('/login',UsersControllers.Login);
 //hien thi thong tin  
 router.post('/info-users',UsersControllers.getUsers);
 
-router.use('/',UsersControllers.index);
+
 
 
 module.exports=router;
