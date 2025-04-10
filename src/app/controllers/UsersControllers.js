@@ -1,15 +1,15 @@
 const { response } = require('express');
 const usersModel = require('../model/Usersmodels');
 const sendMail = require("../modifie/Mail");
+const UsersModel = require('../model/Usersmodels');
 class UsersControllers {
-    index(req, res) {
-        res.json('test')
-    }
     async getUsers(req, res) {
         try {
             const { email } = req.body
+            if (!email) return res.status(400).json({ status: 400, message: "Missing require" });
             const user = await usersModel.GetInfoUser(email)
-            return res.json(user);
+            if (user.status != 200) return res.status(404).json({ user });
+            return res.json({ user })
         } catch (e) {
             return res.status(500).json({ "error": "Lỗi máy chủ!" + e });
         }
@@ -43,12 +43,7 @@ class UsersControllers {
             }
 
             const user = await usersModel.getNameUsers(email, password);
-
-            if (!user) {
-                return res.status(404).json({ "error": "Không tìm thấy người dùng!" });
-            }
-            return res.json({ "message": "Đăng nhập thành công!" });
-
+            return res.json({ user })
         } catch (e) {
             return res.status(500).json({ "error": "Lỗi máy chủ!" + e });
         }
@@ -167,6 +162,14 @@ class UsersControllers {
         } catch (error) {
             return res.status(500).json({ message: "Server Error: " + error.message });
         }
+    }
+
+    // xem lich su kham cua thu cung 
+    async History_pet_byIDCustomer(req, res) {
+        const { customer_id } = req.body;
+        if (!customer_id) return res.json({ status: 400, message: "missing require" })
+        const pets = await UsersModel.History_pet_byIDCustomer(customer_id);
+        return res.json({ pets })
     }
 
 
