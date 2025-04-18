@@ -17,6 +17,17 @@ class helpersControllers {
         return res.json({ history })
     }
     // phan danh cho khach hang co the xem cung
+    async UploadImg(req, res) {
+        const { customer_id } = req.body;
+        if (!req.file) {
+            return res.status(400).json({ message: 'Chưa chọn ảnh!' });
+        }
+        const img_path = `${req.file.filename}`;
+        const img = await helpersModel.uploadImg(img_path, customer_id);
+
+        return res.json({ img, img_path });
+    }
+
 
 }
 

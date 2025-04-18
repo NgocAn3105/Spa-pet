@@ -3,7 +3,7 @@ class helpersModel {
     static async Info_register_form(appointment_date) {
         try {
             const [register_form] = await db.query(`
-            select a.id ,a.appointment_date as date , a.hours, c.last_name as NameCustomer , c.phone, e.id as IdDocTor, e.last_name as doctor ,a.status
+            select a.id ,a.appointment_date as date , a.hours,concat(c.last_name ," ", c.first_name) as NameCustomer , c.phone, e.id as IdDocTor, concat(e.last_name," ",e.first_name) as doctor ,a.status
             from 
                 appointment as a 
                 JOIN
@@ -15,7 +15,8 @@ class helpersModel {
                 LEFT JOIN
                     employee as e on e.id = aps.employee_id
                 where 
-                    a.status = "" and a.appointment_date = ?
+                    a.status is Null and a.appointment_date = ? 
+                ORDER BY a.hours ASC
     `, [appointment_date]);
             if (register_form.length === 0) return { status: 404, message: "Haven't Register form !" };
 
@@ -48,6 +49,11 @@ class helpersModel {
             return { status: 500, message: "Error " + e };
 
         }
+    }
+    static async uploadImg(img_path, customer_id) {
+        const [img] = await db.query("update customer set image=?  where id=?", [img_path, customer_id]);
+        if (img.affectedRows === 0) return { status: 400, message: "Cant Upload images!" };
+        return { status: 200, message: "Upload Sucsess!" };
     }
 
 }

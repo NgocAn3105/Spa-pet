@@ -15,9 +15,6 @@ class EmployeeModel {
                 [date, notes, customer_id, pet_id, employee_id]
             );
             const visit_id = visit.insertId;
-            console.log(visit_id);
-
-
             const add_Service = services.map(async (service) => {
                 await db.query("insert into visit_service (visit_id,service_id) values(?,?) ", [visit_id, service])
             })
@@ -87,6 +84,24 @@ class EmployeeModel {
         if (employee.length === 0) return { status: 404, message: "not found employee!" }
         return { status: 200, message: employee };
     }
+
+    static async Info_services() {
+        const [services] = await db.query("select name,price from service");
+        return { status: 200, message: services }
+    }
+
+    static async GetList_CustomerAndPets_By_phone(phone) {
+        const [customers] = await db.query(`
+            select customer.*,pet.id as idpet,pet.name as namepet
+            from customer 
+            join 
+                pet on pet.customer_id=customer.id
+            where phone = ?
+            `, [phone]);
+        if (customers.length === 0) return { status: 404, message: "Not found Customer!" };
+        return { status: 200, message: customers };
+    }
+
 }
 
 

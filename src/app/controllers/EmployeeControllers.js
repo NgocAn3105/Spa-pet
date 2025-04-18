@@ -44,6 +44,17 @@ class Employeecontrolers {
         const employee = await EmmployeeModel.Info_employee(account_employee_id);
         return res.json({ employee });
     }
+
+    async Info_service(req, res) {
+        const services = await EmmployeeModel.Info_services();
+        return res.json({ services });
+    }
+    async List_CustomerAndPets_By_phone(req, res) {
+        const { phone } = req.body;
+        if (!phone) return res.json({ status: 400, message: "Missing Require!" });
+        const customers = await EmmployeeModel.GetList_CustomerAndPets_By_phone(phone);
+        return res.status(200).json({ customers });
+    }
 }
 
 module.exports = new Employeecontrolers();
